@@ -1,103 +1,159 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+
+function USFJETT() {
+  const [days, setDays] = useState("");
+  const [time, setTime] = useState("");
+  const [currentOccupancies, setCurrentOccupancies] = useState([]);
+  const [predictions, setPredictions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingCurrent, setLoadingCurrent] = useState(true);
+  
+  useEffect(() => {
+    const fetchCurrentOccupancies = async() => {
+      try {
+        setLoadingCurrent(true);
+        const response = await fetch(""); // Add API endpoint here
+        if (!response.ok) throw new Error("Failed to fetch current occupancies");
+
+        const data = await response.json();
+        setCurrentOccupancies(data.occupancies);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to load occupancy data");
+      } finally {
+        setLoadingCurrent(false);
+      }
+    };
+
+    fetchCurrentOccupancies();
+  }, []);
+
+  const handlePrediction = async () => {
+    if (!days || !time) {
+      alert("Please fill in all fields")
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("*Add API endpoint here*", {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ days, time }),
+      }); 
+
+      if (!response.ok) throw new Error("Failed to fetch predictions.");
+      
+      const data = await response.json();
+      setPredictions(data.predictions);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to fetch predictions");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getMeterColor = (value) => {
+    if (value <= 30) return "bg-green-500";
+    if (value <= 70) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex flex-col items-center p-6 space-y-6">
+      <h1 className="text-3x1 font-bold text-green-600">USF JETT</h1>
+      <p className="text-lg text-gray-600">
+        The USF JETT app tells you currennt occupancy in these specific study areas
+        and predicts future occupancy based on historical data.
+      </p>
+    
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Current Occupancies */}
+      <div className="w-full max-w-md space-y-4">
+        <h2 className="text-xl font-bold text-gray-800">Current Occupancy:</h2>
+        {loadingCurrent ? (
+          <p>Loading current occupancy...</p>
+        ) : (
+          <ul className="space-y-2">
+            {currentOccupancies.map((building) => (
+              <li
+                key={building.building}
+                className="flex items-center justify-between p-3 bg-gray-100 rounded-lg shadow-md"
+                >
+                  <span className="font-semibold">{building.building}</span>
+                  <span className="flex items-center space-x-2">
+                    <span>{building.occupancy}% Occupied</span>
+                    <div className="relative w-28 h-4 bg-gray-200 rounded-full">
+                      <div
+                        className={`absolute top-0 left-0 h-full rounded-full $(getMeterColor(building.occupancy))`}
+                        style={{ width: `${building.occupancy}%` }}
+                      ></div>
+                    </div>
+                  </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      
+      {/* Predictions / Schedule */}
+      <div className="w-full max-w-md p-4 space-y-4 bg-gray-50 rounded-lg shadow-md">
+        <h2 className="text-xl font-bold text-gray-800">Predict Capacity at:</h2>
+        <div className="flex flex-col space-y-2">
+          <input
+            type="date"
+            value={days}
+            onChange={(e) => setDays(e.target.value)}
+            className="p-2 border border-gray-300 rounded-lg"
+          />
+          <input
+            type="time"
+            value={time}
+            onchange={(e) => setTime(e.target.value)}
+            className="p-2 border border-gray-300 rounded-lg"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={handlePrediction}
+          className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+          disabled={loading}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {loading ? "Predicting..." : "Predict Capacity"}
+        </button>
+      </div>
+
+      {/* Prediction Section */}
+      {predictions.length > 0 && (
+        <div className="w-full max-w-md space-y-4">
+          <h2 className="text-xl font-bold text-gray-800"> 
+          Predicted Occupancy at {days}, {time}:
+          </h2>
+          <ul className="space-y-2">
+            {predictions.map((building) => (
+              <li
+                key={building.building}
+                className="flex items-center justify-between p-3 bg-gray-100 rounded-lg shadow-md"
+              >
+                <span className="font-semibold">{building.buiilding}</span>
+                <span className="flex items-center space-x-2">
+                  <span>{building.predicted_occupancy}% Occupied</span>
+                  <div className="relative w-28 h-4 bg-gray-200 rounded-full">
+                    <div
+                      className={`absolute top-0 left-0 h-full rounded-full ${getMeterColor(building.predicted_occupancy)}`}
+                      style={{ width: `${building.predicted_occupancy}%`,}}
+                    ></div>
+                  </div>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
+export default USFJETT;
