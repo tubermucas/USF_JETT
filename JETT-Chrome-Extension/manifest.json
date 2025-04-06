@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "JETT",
+  "version": "1.0",
+  "description": "A Chrome extension that enhances the searching for a open study space on campus.",
+  "permissions": ["storage", "activeTab", "http://localhost:3000"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/16x16.png",
+      "48": "images/48x48.png",
+      "128": "images/128x128.png"
+    }
+  },
+  "icons": {
+    "16": "images/16x16.png",
+    "48": "images/48x48.png",
+    "128": "images/128x128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

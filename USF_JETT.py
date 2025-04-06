@@ -12,6 +12,9 @@ PUBLISHED_NAME = "Iteration1"
 credentials = ApiKeyCredentials(in_headers={"Prediction-key": PREDICTION_KEY})
 predictor = CustomVisionPredictionClient(ENDPOINT, credentials)
 
+# delete the code later
+
+
 def detect_objects(image_path):
     with open(image_path, "rb") as image_data:
         results = predictor.detect_image(PROJECT_ID, PUBLISHED_NAME, image_data.read())
@@ -47,7 +50,7 @@ def count_occupied_tables(predictions):
         for person in people:
             if is_overlap(table.bounding_box, person.bounding_box):
                 occupied += 1
-                break  # One person is enough to mark table as occupied
+                break  
 
     total_tables = len(tables)
     return occupied, total_tables

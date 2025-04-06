@@ -1,7 +1,3 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
@@ -9,150 +5,16 @@ from msrest.authentication import ApiKeyCredentials
 
 import os
 import random
-import shutil
 import json
 import time
 from datetime import datetime
 
-# add comments after implementing fastapi if needed
+# delete later the code later
+def result_from_cam():
+    result = {"LIB": random.randint(0, 100), "ENB": random.randint(0, 100), "BSN": random.randint(0, 100), "MDN": random.randint(0, 100)}
+    return dict(sorted(result.items(), key=lambda item: item[1]))
 
 
-# for the first ai (need to make the comment more formal)
-ENDPOINT_1 = "https://tableemptypredictor.cognitiveservices.azure.com/"
-PREDICTION_KEY_1 = "ExYj2VC82WJsTbgsB5JcdfvAJArTjTXtw01JxyYfV9iUgVTAe2qdJQQJ99BDACYeBjFXJ3w3AAAIACOGOjam"
-PROJECT_ID = "38320eb8-3bf2-43e2-8766-00fda8ed5144"
-PUBLISHED_NAME = "Iteration1"
-
-credentials = ApiKeyCredentials(in_headers={"Prediction-key": PREDICTION_KEY_1})
-predictor = CustomVisionPredictionClient(ENDPOINT_1, credentials)
-
-
-# for the second ai (need to make the comment more formal)
-ENDPOINT_2 = "https://canvasapp.cognitiveservices.azure.com/"
-PREDICTION_KEY_2 = "9ICQboZWpsBjyc8wsf6lHndcHpRu689qfQWrlCtDCLPMORQqATnnJQQJ99BDACYeBjFXJ3w3AAAFACOGz93o"
-
-# Authenticate client
-client = ComputerVisionClient(ENDPOINT_2, CognitiveServicesCredentials(PREDICTION_KEY_2))
-
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with frontend URL for better security
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# functions for the first ai
-
-def detect_objects(image_path):
-    with open(image_path, "rb") as image_data:
-        results = predictor.detect_image(PROJECT_ID, PUBLISHED_NAME, image_data.read())
-    return results.predictions
-
-def is_overlap(box1, box2):
-    l1_x = box1.left
-    l1_y = box1.top
-    r1_x = box1.left + box1.width
-    r1_y = box1.top + box1.height
-
-    l2_x = box2.left
-    l2_y = box2.top
-    r2_x = box2.left + box2.width
-    r2_y = box2.top + box2.height
-
-    if l1_x > r2_x or l2_x > r1_x:
-        return False
-    if l1_y > r2_y or l2_y > r1_y:
-        return False
-    return True
-
-def count_occupied_tables(predictions):
-    people = [p for p in predictions if p.tag_name == "Person" and p.probability > 0.7]
-    tables = [t for t in predictions if t.tag_name == "table" and t.probability > 0.7]
-
-    occupied = 0
-    for table in tables:
-        for person in people:
-            if is_overlap(table.bounding_box, person.bounding_box):
-                occupied += 1
-                break
-
-    total_tables = len(tables)
-    return occupied, total_tables
-
-def get_random_camera_footage(building_name):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    building_folder = os.path.join(script_dir, "camera_footages", building_name)
-    random_footage_path = os.path.join(building_folder, random.choice(os.listdir(building_folder)))
-
-    if not os.path.exists(random_footage_path):
-        return None
-    return random_footage_path
-
-    
-
-@app.get("/api/current-occupancies")
-def get_current_occupancies():
-    """
-    Returns the percentage of occupied tables for each building.
-    """
-    available_buildings = {"LIB": None, "BSN": None, "ENB": None, "MDN": None}
-
-    for building in available_buildings.keys():
-        image_path = get_random_camera_footage(building)
-        if not image_path:
-            continue
-
-        predictions = detect_objects(image_path)
-        occupied, total = count_occupied_tables(predictions)
-        percent_of_occupied = (occupied / total) * 100 if total > 0 else None
-
-        available_buildings[building] = percent_of_occupied
-    
-    sorted_buildings = dict(sorted(available_buildings.items(), key=lambda item: item[1]))
-
-    
-    # Format the response
-    response = [
-        {"building": building, "percent_occupied": percent}
-        for building, percent in available_buildings.items()
-        if percent is not None
-    ]
-
-    return JSONResponse(response)
-
-@app.post("/api/upload-image")
-async def upload_image(image: UploadFile = File(...)):
-    """
-    Upload an image and return the prediction results.
-    """
-    try:
-        upload_dir = "uploaded_images"
-        os.makedirs(upload_dir, exist_ok=True)
-        file_path = os.path.join(upload_dir, image.filename)
-
-        with open(file_path, "wb") as f:
-            shutil.copyfileobj(image.file, f)
-
-        predictions = detect_objects(file_path)
-        occupied, total = count_occupied_tables(predictions)
-        percent_occupied = (occupied / total) * 100 if total > 0 else None
-        os.remove(file_path)  
-
-        return {"percent_occupied": percent_occupied}
-    except Exception as e:
-        return JSONResponse(
-            {"error": str(e)}, status_code=500
-        )
-    
-    return sorted_buildings
-    
-
-
-# functions for the second ai
 def get_random_scedule():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     scheduale_folder = os.path.join(script_dir, "scheduale_data")
@@ -163,7 +25,6 @@ def get_random_scedule():
         return None
 
     return random_sceduale_path
-
 
 def analyze_schedule(sceduale_path):
 
@@ -211,7 +72,6 @@ def analyze_schedule(sceduale_path):
 
     return current_class
 
-
 def get_map_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     map_folder = os.path.join(script_dir, "map")
@@ -223,7 +83,6 @@ def get_map_path():
 
     return map_path
 
-
 def ignore_high_occupancy(buildings):
     new_buildings = {}
     for building in buildings.keys():
@@ -232,15 +91,21 @@ def ignore_high_occupancy(buildings):
     
     return new_buildings
 
-
 def closest_bulding(cur_class_x, cur_class_y, target_x, target_y):
     # Calculate the distance between the two points
     distance = ((cur_class_x - target_x) ** 2 + (cur_class_y - target_y) ** 2) ** 0.5
     return distance
     
-
 def MappingModel():
+    # Replace with your actual values
+    endpoint = "https://canvasapp.cognitiveservices.azure.com/"
+    key = "9ICQboZWpsBjyc8wsf6lHndcHpRu689qfQWrlCtDCLPMORQqATnnJQQJ99BDACYeBjFXJ3w3AAAFACOGz93o"
+
+    # Authenticate client
+    client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(key))
+
     
+
 
     # Image to analyze (local file or URL)
     map_path = get_map_path()     
@@ -329,7 +194,7 @@ def best_suggestion(available_buildings, cur_class):
 
 def main():
 
-    all_buildings = get_current_occupancies() # the first ai is supposed to return sorted buildings by occupancy
+    all_buildings = result_from_cam() # the first ai is supposed to return sorted buildings by occupancy
     available_buildings = ignore_high_occupancy(all_buildings)
 
     random_sceduale_path = get_random_scedule()
@@ -371,4 +236,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
