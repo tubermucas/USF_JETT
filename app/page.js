@@ -11,27 +11,6 @@ function USFJETT() {
   const [occupancyScore, setOccupancyScore] = useState(null);
   const bookingLink = "https://calendar.lib.usf.edu/spaces"
   
-  // Fetch current occupancies from backend
-  useEffect(() => {
-    const fetchCurrentOccupancies = async() => {
-      try {
-        setLoadingCurrent(true);
-        const response = await fetch("http://127.0.0.1:8000/api/current-occupancies"); // Add API endpoint here
-        if (!response.ok) throw new Error("Failed to fetch current occupancies");
-
-        const data = await response.json();
-        setCurrentOccupancies(data);
-      } catch (error) {
-        console.error(error);
-        alert("Failed to load occupancy data");
-      } finally {
-        setLoadingCurrent(false);
-      }
-    };
-
-    fetchCurrentOccupancies();
-  }, []);
-
   // Fetch best suggestion from backend
   useEffect(() => {
     const fetchBestSuggestion = async() => {
@@ -49,6 +28,36 @@ function USFJETT() {
 
     fetchBestSuggestion();
   }, []);
+
+  // Fetch current occupancies from backend
+  useEffect(() => {
+
+    if (!bestSuggestion) return; //wait for best suggestion
+
+    const fetchCurrentOccupancies = async() => {
+      try {
+        setLoadingCurrent(true);
+        const response = await fetch("http://127.0.0.1:8000/api/current-occupancies"); // Add API endpoint here
+        if (!response.ok) throw new Error("Failed to fetch current occupancies");
+
+        const data = await response.json();
+
+        // Filter data already shown
+        const filteredOccupancies = data.filter(
+          (building) => building.building !== bestSuggestion.best_building
+        );
+
+        setCurrentOccupancies(filteredOccupancies);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to load occupancy data");
+      } finally {
+        setLoadingCurrent(false);
+      }
+    };
+
+    fetchCurrentOccupancies();
+  }, [bestSuggestion]);
 
   // Handle user image upload
   const handleImageUpload = async (e) => {
@@ -97,7 +106,7 @@ function USFJETT() {
     
       {/* Best Location Suggestion */}
       {bestSuggestion && (
-        <div className="w-full max-w-md p-4 bg-gray-50 rounded-lg shadow-md">
+        <div className="w-full max-w-md p-4 bg-gray-50 rounded-lg shadow-md text-center">
           <h2 className="text-xl font-bold text-gray-800">Reccomended study Location:</h2>
           <p className="mt-2 text-gray-700 text-center">
             <strong>{bestSuggestion.best_building}</strong> - {bestSuggestion.occupancy.toFixed(2)}% Occupied
@@ -106,8 +115,9 @@ function USFJETT() {
       )}
 
       {/* Current Occupancies */}
-      <div className="w-full max-w-md space-y-4">
-        <h2 className="text-xl font-bold text-green-800 text-center">Current Occupancy:</h2>
+      {!loadingCurrent && currentOccupancies.length > 0 && (
+      <div className="w-full max-w-md space-y-4 text-center">
+        <h2 className="text-xl font-bold text-green-800">Current Occupancy:</h2>
         {loadingCurrent ? (
           <p>Loading current occupancy...</p>
         ) : (
@@ -132,6 +142,7 @@ function USFJETT() {
           </ul>
         )}
       </div>
+      )}
 
       {/* Image Upload */}
       <div className="w-full max-w-md p-4 space-y-4 bg-gray-50 rounded-lg shadow-md">
