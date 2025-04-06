@@ -1,5 +1,5 @@
 # USF_JETT
-Hello Everyone!!
+Hello Everyone!
 Canvas JETT
 
 Contributors: **Jesse Simmons, Ethan Vasquez, Temirzhan Mukhambet, Tommy Le**
@@ -55,4 +55,4 @@ JETT is definitely in its early stages and plans for the future are vast. To nam
 - Train the AI further better detect objects
 - Not be limited to the 4 buildings given via presets (Additional campuses included)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).z`
