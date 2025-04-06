@@ -153,7 +153,7 @@ async def upload_image(image: UploadFile = File(...)):
 
 
 # functions for the second ai
-def get_random_scedule():
+def get_random_schedule():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     scheduale_folder = os.path.join(script_dir, "scheduale_data")
     random_sceduale_path = os.path.join(scheduale_folder, random.choice(os.listdir(scheduale_folder)))
@@ -332,7 +332,7 @@ def main():
     all_buildings = get_current_occupancies() # the first ai is supposed to return sorted buildings by occupancy
     available_buildings = ignore_high_occupancy(all_buildings)
 
-    random_sceduale_path = get_random_scedule()
+    random_sceduale_path = get_random_schedule()
     print(f"Random schedule path: {random_sceduale_path}")
 
     cur_class = analyze_schedule(random_sceduale_path)
@@ -367,7 +367,45 @@ def main():
         if building != best_building:
             print(f"{building}: {all_buildings[building]}")
         
+@app.get("/api/best-location")
+def get_best_location():
+    """
+    Returns the best location to go to based on the current schedule and occupancy to the frontend.
+    """
+    try:
+        # Get all building occupancies
+        response = get_current_occupancies()
+        all_buildings = json.loads(response.body.decode())
+        all_buildings = {b["building"]: b["percent_occupied"] for b in all_buildings}
 
+        available_buildings = ignore_high_occupancy(all_buildings)
+        if not available_buildings:
+            return JSONResponse(
+                {"error": "No available buildings"}, status_code=404
+            )
+        # Pull a random schedule
+        random_schedule_path = get_random_schedule()
+        if not random_schedule_path:
+            return JSONResponse(
+                {"error": "No schedule available"}, status_code=404
+            )
+        # Get user location
+        cur_class = analyze_schedule(random_schedule_path)
+
+        # If no current class, suggest the building with the lowest occupancy
+        if not cur_class:
+            best_building = min(all_buildings, key=all_buildings.get)
+        else:
+            if cur_class in available_buildings:
+                best_building = cur_class
+            else:
+                best_building = best_suggestion(available_buildings, cur_class)
+        return {"best_building": best_building, "occupancy": all_buildings[best_building]}
+        
+    except Exception as e:
+        return JSONResponse(
+            {"error": str(e)}, status_code=500
+        )
 
 if __name__ == "__main__":
     main()
