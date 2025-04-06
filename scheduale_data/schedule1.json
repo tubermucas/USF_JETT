@@ -1,0 +1,53 @@
+[
+    {
+        "Subject": "ECO 2023",
+        "Section": "500",
+        "Name": "Econ Princpl (Macroeconomics)",
+        "CRN": "87191",
+        "Teacher": "P. Sinclair",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "02:00pm-03:15pm",
+                "Bldg": "EDU",
+                "Room": "201"
+            },
+            {
+                "Days": "TR",
+                "Times": "12:30pm-01:45pm",
+                "Bldg": "EDU",
+                "Room": "101"
+            }
+        ]
+    },
+    {
+        "Subject": "INR 2002",
+        "Section": "101",
+        "Name": "Intro to Int'l Relations",
+        "CRN": "87091",
+        "Teacher": "G. Parker",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "06:30pm-09:15pm",
+                "Bldg": "CPR",
+                "Room": "200"
+            }
+        ]
+    },
+    {
+        "Subject": "COP 2030",
+        "Section": "100",
+        "Name": "Programming Concepts",
+        "CRN": "87091",
+        "Teacher": "G. Parker",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "02:00pm-03:15pm",
+                "Bldg": "CPR",
+                "Room": "330"
+            }
+        ]
+    }
+]

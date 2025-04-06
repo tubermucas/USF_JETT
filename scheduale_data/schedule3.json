@@ -1,0 +1,89 @@
+[
+    {
+        "Subject": "ECO 2023",
+        "Section": "500",
+        "Name": "Econ Princpl (Macroeconomics)",
+        "CRN": "87191",
+        "Teacher": "P. Sinclair",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "02:00pm-03:15pm",
+                "Bldg": "EDU",
+                "Room": "201"
+            },
+            {
+                "Days": "TR",
+                "Times": "12:30pm-01:45pm",
+                "Bldg": "EDU",
+                "Room": "101"
+            },
+            {
+                "Days": "F",
+                "Times": "11:00am-11:50am",
+                "Bldg": "ENA",
+                "Room": "1001"
+            }
+        ]
+    },
+    {
+        "Subject": "INR 2002",
+        "Section": "101",
+        "Name": "Intro to Int'l Relations",
+        "CRN": "87091",
+        "Teacher": "G. Parker",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "06:30pm-09:15pm",
+                "Bldg": "CPR",
+                "Room": "200"
+            }
+        ]
+    },
+    {
+        "Subject": "AMH 2020",
+        "Section": "101",
+        "Name": "American History II",
+        "CRN": "87391",
+        "Teacher": "D. Parker",
+        "Meetings": [
+            {
+                "Days": "MWF",
+                "Times": "11:00am-11:50am",
+                "Bldg": "ENA",
+                "Room": "1001"
+            }
+        ]
+    },
+    {
+        "Subject": "LIT 2000",
+        "Section": "100",
+        "Name": "Introduction to Literature",
+        "CRN": "87291",
+        "Teacher": "R. Parker",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "06:30pm-09:15pm",
+                "Bldg": "ENB",
+                "Room": "130"
+            }
+        ]
+    },
+    {
+        "Subject": "COP 2030",
+        "Section": "100",
+        "Name": "Programming Concepts",
+        "CRN": "87091",
+        "Teacher": "G. Parker",
+        "Meetings": [
+            {
+                "Days": "MW",
+                "Times": "02:00pm-03:15pm",
+                "Bldg": "CPR",
+                "Room": "330"
+            }
+        ]
+    }
+]

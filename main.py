@@ -69,6 +69,8 @@ def get_random_camera_footage(building_name):
         return None
     return random_footage_path
 
+
+
 @app.get("/api/current-occupancies")
 def get_current_occupancies():
     """

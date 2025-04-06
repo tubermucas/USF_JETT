@@ -47,7 +47,7 @@ def count_occupied_tables(predictions):
         for person in people:
             if is_overlap(table.bounding_box, person.bounding_box):
                 occupied += 1
-                break  # One person is enough to mark table as occupied
+                break  
 
     total_tables = len(tables)
     return occupied, total_tables
