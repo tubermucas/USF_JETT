@@ -4,7 +4,7 @@ Canvas JETT
 
 Contributors: **Jesse Simmons, Ethan Vasquez, Temirzhan Mukhambet, Tommy Le**
 
-  About:
+About:
 JETT is our submission for the HackUSF 2025 Canvas Web API track
 JETT utilizes Microsoft Azure custom vision and computer vision with python to detect the occupancy of a room.
 We trained the AI model to detect where tables and people were and gave an overall percentage of busyness.
