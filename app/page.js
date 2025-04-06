@@ -9,6 +9,7 @@ function USFJETT() {
   const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingCurrent, setLoadingCurrent] = useState(true);
+  const bookingLink = "https://calendar.lib.usf.edu/spaces"
   
   useEffect(() => {
     const fetchCurrentOccupancies = async() => {
@@ -39,7 +40,7 @@ function USFJETT() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://tableemptypredictor.cognitiveservices.azure.com/", {
+      const response = await fetch("http://127.0.0.1:8000/api/current-occupancies", {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ days, time }),
@@ -65,7 +66,7 @@ function USFJETT() {
 
   return (
     <div className="flex flex-col items-center p-6 space-y-6">
-      <h1 className="text-3x1 font-bold text-green-600">USF JETT</h1>
+      <h1 className="text-3xl font-bold text-green-600">USF JETT</h1>
       <p className="text-lg text-gray-600">
         The USF JETT app tells you currennt occupancy in these specific study areas
         and predicts future occupancy based on historical data.
@@ -82,15 +83,15 @@ function USFJETT() {
             {currentOccupancies.map((building) => (
               <li
                 key={building.building}
-                className="flex items-center justify-between p-3 bg-gray-100 rounded-lg shadow-md"
+                className="flex items-center justify-between p-3 bg-black-100 rounded-lg shadow-md"
                 >
                   <span className="font-semibold">{building.building}</span>
                   <span className="flex items-center space-x-2">
-                    <span>{building.percent_occupied.toFixed(2)}% Occupied</span>
+                    <span>{(building.percent_occupied || 0).toFixed(2)}% Occupied</span>
                     <div className="relative w-28 h-4 bg-gray-200 rounded-full">
                       <div
-                        className={`absolute top-0 left-0 h-full rounded-full $(getMeterColor(building.percent_occupied))`}
-                        style={{ width: `${building.occupancy}%` }}
+                        className={`absolute top-0 left-0 h-full rounded-full ${getMeterColor(building.percent_occupied)}`}
+                        style={{ width: `${building.percent_occupied}%` }}
                       ></div>
                     </div>
                   </span>
@@ -115,7 +116,7 @@ function USFJETT() {
             value={time}
             onChange={(e) => setTime(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
-          />
+          />  
         </div>
         <button
           onClick={handlePrediction}
@@ -124,6 +125,14 @@ function USFJETT() {
         >
           {loading ? "Predicting..." : "Predict Capacity"}
         </button>
+      </div>   
+
+      {/* Booking Link */}
+      <div className="mt-6">
+        <a href={bookingLink} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">
+          <img src="/sai-kiran-belana-qTZ3N5G7YLg-unsplash.jpg" alt="Book a study space" className="w-32 h-auto text-center"  />
+          <p className="text-lg text-yellow-500">Book a study space</p>
+        </a>
       </div>
 
       {/* Prediction Section */}
@@ -138,7 +147,7 @@ function USFJETT() {
                 key={building.building}
                 className="flex items-center justify-between p-3 bg-gray-100 rounded-lg shadow-md"
               >
-                <span className="font-semibold">{building.buiilding}</span>
+                <span className="font-semibold">{building.building}</span>
                 <span className="flex items-center space-x-2">
                   <span>{building.predicted_occupancy}% Occupied</span>
                   <div className="relative w-28 h-4 bg-gray-200 rounded-full">
