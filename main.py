@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -9,6 +9,7 @@ from msrest.authentication import ApiKeyCredentials
 
 import os
 import random
+import shutil
 import json
 import time
 from datetime import datetime
@@ -91,10 +92,9 @@ def get_random_camera_footage(building_name):
         return None
     return random_footage_path
 
+    
 
-# remove the @app.get("/api/current-occupancies") decorator for testing purposes
-# @app.get("/api/current-occupancies")
-
+@app.get("/api/current-occupancies")
 def get_current_occupancies():
     """
     Returns the percentage of occupied tables for each building.
@@ -114,7 +114,7 @@ def get_current_occupancies():
     
     sorted_buildings = dict(sorted(available_buildings.items(), key=lambda item: item[1]))
 
-    """
+    
     # Format the response
     response = [
         {"building": building, "percent_occupied": percent}
@@ -123,7 +123,31 @@ def get_current_occupancies():
     ]
 
     return JSONResponse(response)
+
+@app.post("/api/upload-image")
+async def upload_image(image: UploadFile = File(...)):
     """
+    Upload an image and return the prediction results.
+    """
+    try:
+        upload_dir = "uploaded_images"
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, image.filename)
+
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(image.file, f)
+
+        predictions = detect_objects(file_path)
+        occupied, total = count_occupied_tables(predictions)
+        percent_occupied = (occupied / total) * 100 if total > 0 else None
+        os.remove(file_path)  
+
+        return {"percent_occupied": percent_occupied}
+    except Exception as e:
+        return JSONResponse(
+            {"error": str(e)}, status_code=500
+        )
+    
     return sorted_buildings
     
 
