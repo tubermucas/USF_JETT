@@ -3,10 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 function USFJETT() {
-  const [days, setDays] = useState("");
-  const [time, setTime] = useState("");
   const [currentOccupancies, setCurrentOccupancies] = useState([]);
-  const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingCurrent, setLoadingCurrent] = useState(true);
   const [uploadedImage, setUploadedImage] = useState(false);
@@ -34,35 +31,6 @@ function USFJETT() {
 
     fetchCurrentOccupancies();
   }, []);
-
-  // Handle prediction button click... may delete
-  const handlePrediction = async () => {
-    if (!days || !time) {
-      alert("Please fill in all fields")
-      return;
-    }
-
-    setLoading(true);
-
-    // Validate date and time... may delete
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/current-occupancies", {
-        method: "POST", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ days, time }),
-      }); 
-
-      if (!response.ok) throw new Error("Failed to fetch predictions.");
-      
-      const data = await response.json();
-      setPredictions(data.predictions);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to fetch predictions");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Handle user image upload
   const handleImageUpload = async (e) => {
@@ -165,32 +133,6 @@ function USFJETT() {
               </p>
             </div>
           )}
-      </div>    
-      
-      {/* Predictions / Schedule */}
-      <div className="w-full max-w-md p-4 space-y-4 bg-gray-50 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold text-gray-800">Predict Capacity at:</h2>
-        <div className="flex flex-col space-y-2">
-          <input
-            type="date"
-            value={days}
-            onChange={(e) => setDays(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg"
-          />
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg"
-          />  
-        </div>
-        <button
-          onClick={handlePrediction}
-          className="w-full px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-yellow-500"
-          disabled={loading}
-        >
-          {loading ? "Predicting..." : "Predict Capacity"}
-        </button>
       </div>   
 
       {/* Booking Link */}
@@ -201,33 +143,6 @@ function USFJETT() {
         </a>
       </div>
 
-      {/* Prediction Section */}
-      {predictions.length > 0 && (
-        <div className="w-full max-w-md space-y-4">
-          <h2 className="text-xl font-bold text-gray-800"> 
-          Predicted Occupancy at {days}, {time}:
-          </h2>
-          <ul className="space-y-2">
-            {predictions.map((building) => (
-              <li
-                key={building.building}
-                className="flex items-center justify-between p-3 bg-gray-100 rounded-lg shadow-md"
-              >
-                <span className="font-semibold">{building.building}</span>
-                <span className="flex items-center space-x-2">
-                  <span>{building.predicted_occupancy}% Occupied</span>
-                  <div className="relative w-28 h-4 bg-gray-200 rounded-full">
-                    <div
-                      className={`absolute top-0 left-0 h-full rounded-full ${getMeterColor(building.predicted_occupancy)}`}
-                      style={{ width: `${building.predicted_occupancy}%`,}}
-                    ></div>
-                  </div>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

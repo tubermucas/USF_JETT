@@ -117,7 +117,7 @@ async def upload_image(image: UploadFile = File(...)):
         percent_occupied = (occupied / total) * 100 if total > 0 else None
         os.remove(file_path)  
 
-        return ("occupancy_score", percent_occupied)
+        return {"percent_occupied": percent_occupied}
     except Exception as e:
         return JSONResponse(
             {"error": str(e)}, status_code=500
