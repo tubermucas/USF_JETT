@@ -128,9 +128,9 @@ function USFJETT() {
       </div>   
 
       {/* Booking Link */}
-      <div className="mt-6">
-        <a href={bookingLink} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">
-          <img src="/sai-kiran-belana-qTZ3N5G7YLg-unsplash.jpg" alt="Book a study space" className="w-32 h-auto text-center"  />
+      <div className="mt-6" flex justify-center items-center>
+        <a href={bookingLink} target="_blank" rel="noopener noreferrer" className="text-green-500 text-center">
+          <img src="/sai-kiran-belana-qTZ3N5G7YLg-unsplash.jpg" alt="Book a study space" className="w-64 h-auto"  />
           <p className="text-lg text-yellow-500">Book a study space</p>
         </a>
       </div>
