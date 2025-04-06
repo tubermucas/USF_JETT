@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 from msrest.authentication import ApiKeyCredentials
 import os
 import random
+import shutil
 
 ENDPOINT = "https://tableemptypredictor.cognitiveservices.azure.com/"
 PREDICTION_KEY = "ExYj2VC82WJsTbgsB5JcdfvAJArTjTXtw01JxyYfV9iUgVTAe2qdJQQJ99BDACYeBjFXJ3w3AAAIACOGOjam"
@@ -69,6 +70,8 @@ def get_random_camera_footage(building_name):
         return None
     return random_footage_path
 
+    
+
 @app.get("/api/current-occupancies")
 def get_current_occupancies():
     """
@@ -95,3 +98,27 @@ def get_current_occupancies():
     ]
 
     return JSONResponse(response)
+
+@app.post("/api/upload-image")
+async def upload_image(image: UploadFile = File(...)):
+    """
+    Upload an image and return the prediction results.
+    """
+    try:
+        upload_dir = "uploaded_images"
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, image.filename)
+
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(image.file, f)
+
+        predictions = detect_objects(file_path)
+        occupied, total = count_occupied_tables(predictions)
+        percent_occupied = (occupied / total) * 100 if total > 0 else None
+        os.remove(file_path)  
+
+        return ("occupancy_score", percent_occupied)
+    except Exception as e:
+        return JSONResponse(
+            {"error": str(e)}, status_code=500
+        )
