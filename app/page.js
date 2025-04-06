@@ -14,11 +14,11 @@ function USFJETT() {
     const fetchCurrentOccupancies = async() => {
       try {
         setLoadingCurrent(true);
-        const response = await fetch(""); // Add API endpoint here
+        const response = await fetch("http://127.0.0.1:8000/api/current-occupancies"); // Add API endpoint here
         if (!response.ok) throw new Error("Failed to fetch current occupancies");
 
         const data = await response.json();
-        setCurrentOccupancies(data.occupancies);
+        setCurrentOccupancies(data);
       } catch (error) {
         console.error(error);
         alert("Failed to load occupancy data");
@@ -39,7 +39,7 @@ function USFJETT() {
     setLoading(true);
 
     try {
-      const response = await fetch("*Add API endpoint here*", {
+      const response = await fetch("https://tableemptypredictor.cognitiveservices.azure.com/", {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ days, time }),
@@ -74,7 +74,7 @@ function USFJETT() {
 
       {/* Current Occupancies */}
       <div className="w-full max-w-md space-y-4">
-        <h2 className="text-xl font-bold text-gray-800">Current Occupancy:</h2>
+        <h2 className="text-xl font-bold text-green-800">Current Occupancy:</h2>
         {loadingCurrent ? (
           <p>Loading current occupancy...</p>
         ) : (
@@ -86,10 +86,10 @@ function USFJETT() {
                 >
                   <span className="font-semibold">{building.building}</span>
                   <span className="flex items-center space-x-2">
-                    <span>{building.occupancy}% Occupied</span>
+                    <span>{building.percent_occupied.toFixed(2)}% Occupied</span>
                     <div className="relative w-28 h-4 bg-gray-200 rounded-full">
                       <div
-                        className={`absolute top-0 left-0 h-full rounded-full $(getMeterColor(building.occupancy))`}
+                        className={`absolute top-0 left-0 h-full rounded-full $(getMeterColor(building.percent_occupied))`}
                         style={{ width: `${building.occupancy}%` }}
                       ></div>
                     </div>
@@ -113,13 +113,13 @@ function USFJETT() {
           <input
             type="time"
             value={time}
-            onchange={(e) => setTime(e.target.value)}
+            onChange={(e) => setTime(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           />
         </div>
         <button
           onClick={handlePrediction}
-          className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+          className="w-full px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-yellow-500"
           disabled={loading}
         >
           {loading ? "Predicting..." : "Predict Capacity"}
