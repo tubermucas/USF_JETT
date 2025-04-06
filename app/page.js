@@ -4,14 +4,14 @@ import React, { useState, useEffect } from "react";
 
 function USFJETT() {
   const [currentOccupancies, setCurrentOccupancies] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [loadingCurrent, setLoadingCurrent] = useState(true);
+  const [bestSuggestion, setBestSuggestion] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [occupancyScore, setOccupancyScore] = useState(null);
   const bookingLink = "https://calendar.lib.usf.edu/spaces"
   
-  // Fetch current occupancies on form backend
+  // Fetch current occupancies from backend
   useEffect(() => {
     const fetchCurrentOccupancies = async() => {
       try {
@@ -30,6 +30,24 @@ function USFJETT() {
     };
 
     fetchCurrentOccupancies();
+  }, []);
+
+  // Fetch best suggestion from backend
+  useEffect(() => {
+    const fetchBestSuggestion = async() => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/best-location");
+        if (!response.ok) throw new Error("Failed to fetch best suggestion");
+
+        const data = await response.json();
+        setBestSuggestion(data);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to load best suggestion");
+      } 
+    };
+
+    fetchBestSuggestion();
   }, []);
 
   // Handle user image upload
@@ -77,6 +95,15 @@ function USFJETT() {
       Discover real-time study space occupancy, upload your own images, integrate your schedule to see the best place to study in between classes, and book a  private study space with the USF Jett App!.
       </p>
     
+      {/* Best Location Suggestion */}
+      {bestSuggestion && (
+        <div className="w-full max-w-md p-4 bg-gray-50 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold text-gray-800">Reccomended study Location:</h2>
+          <p className="mt-2 text-gray-700 text-center">
+            <strong>{bestSuggestion.best_building}</strong> - {bestSuggestion.occupancy.toFixed(2)}% Occupied
+          </p>
+        </div>
+      )}
 
       {/* Current Occupancies */}
       <div className="w-full max-w-md space-y-4">
