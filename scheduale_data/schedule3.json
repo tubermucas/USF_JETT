@@ -21,7 +21,7 @@
             {
                 "Days": "F",
                 "Times": "11:00am-11:50am",
-                "Bldg": "ENA",
+                "Bldg": "CMC",
                 "Room": "1001"
             }
         ]
@@ -51,7 +51,7 @@
             {
                 "Days": "MWF",
                 "Times": "11:00am-11:50am",
-                "Bldg": "ENA",
+                "Bldg": "CMC",
                 "Room": "1001"
             }
         ]

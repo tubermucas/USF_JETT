@@ -12,6 +12,9 @@ PUBLISHED_NAME = "Iteration1"
 credentials = ApiKeyCredentials(in_headers={"Prediction-key": PREDICTION_KEY})
 predictor = CustomVisionPredictionClient(ENDPOINT, credentials)
 
+# delete the code later
+
+
 def detect_objects(image_path):
     with open(image_path, "rb") as image_data:
         results = predictor.detect_image(PROJECT_ID, PUBLISHED_NAME, image_data.read())

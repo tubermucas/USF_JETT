@@ -9,16 +9,7 @@ import json
 import time
 from datetime import datetime
 
-
-ENDPOINT = "https://tableemptypredictor.cognitiveservices.azure.com/"
-PREDICTION_KEY = "ExYj2VC82WJsTbgsB5JcdfvAJArTjTXtw01JxyYfV9iUgVTAe2qdJQQJ99BDACYeBjFXJ3w3AAAIACOGOjam"
-PROJECT_ID = "38320eb8-3bf2-43e2-8766-00fda8ed5144"
-PUBLISHED_NAME = "Iteration1"
-
-credentials = ApiKeyCredentials(in_headers={"Prediction-key": PREDICTION_KEY})
-predictor = CustomVisionPredictionClient(ENDPOINT, credentials)
-
-# delete later
+# delete later the code later
 def result_from_cam():
     result = {"LIB": random.randint(0, 100), "ENB": random.randint(0, 100), "BSN": random.randint(0, 100), "MDN": random.randint(0, 100)}
     return dict(sorted(result.items(), key=lambda item: item[1]))
@@ -136,15 +127,12 @@ def MappingModel():
     return result
 
 
-def best_suggestion(all_buildings, cur_class):
+def best_suggestion(available_buildings, cur_class):
+
+    cur_class_found = False
+
     cur_class_x = 0
     cur_class_y = 0
-    
-    available_buildings = ignore_high_occupancy(all_buildings)
-
-    
-
-    print(f"Current class: {cur_class}")
 
     result = MappingModel()
 
@@ -161,16 +149,30 @@ def best_suggestion(all_buildings, cur_class):
             y_center =  (y1+y2)/2
 
             if line.text == cur_class:
+                cur_class_found = True
+
                 cur_class_x = x_center
                 cur_class_y = y_center
+
+                print(f"Current class coordinates: {cur_class_x}, {cur_class_y}")
             else:
                 available_buildings[line.text] = (x_center, y_center)
+
+                print(f"Building coordinates: {line.text}: {x_center}, {y_center}")
+
+    if not cur_class_found:
+        print("Current class not found on map")
+        return list(available_buildings.keys())[0]
+
 
     best_building = None
     min_distance = 0.0
 
+    print(f"Buildings: {available_buildings.keys()}")
+
     print("Distaance calculation:")
     for building in available_buildings.keys():
+        
         target_x, target_y = available_buildings[building]
 
         if target_x == cur_class_x and target_y == cur_class_y:
@@ -192,7 +194,8 @@ def best_suggestion(all_buildings, cur_class):
 
 def main():
 
-    all_buildings = result_from_cam()
+    all_buildings = result_from_cam() # the first ai is supposed to return sorted buildings by occupancy
+    available_buildings = ignore_high_occupancy(all_buildings)
 
     random_sceduale_path = get_random_scedule()
     print(f"Random schedule path: {random_sceduale_path}")
@@ -215,10 +218,10 @@ def main():
         
         return
     
-    if cur_class in all_buildings.keys():
+    if cur_class in available_buildings.keys():
         best_building = cur_class
     else:
-        best_building = best_suggestion(all_buildings, cur_class)
+        best_building = best_suggestion(available_buildings, cur_class)
     
     print(f"Best building to go to: {best_building}")
     print(f"{best_building}: {all_buildings[best_building]}")
